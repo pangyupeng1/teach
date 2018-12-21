@@ -160,7 +160,6 @@
             ]
         })
     }
-
     findResFn();
 
 </script>
@@ -189,7 +188,7 @@
                if(isOK){
                    var resultNo =trFather.children()[0].innerText;//获取学号
                    $.ajax({
-                       url:"/res/deleteResult/"+resultNo,
+                       url:"/res/deleteSubject/"+resultNo,
                        type:"DELETE",
                        success:function (data) {
                            //1.将后台json数据显示弹出，进行温馨提示
@@ -265,21 +264,21 @@
        })
        //6.对学号进行异步查询
        $("#studentNo").on("blur",function () {
-            var studentNo=$("#studentNo").val();
-            $("#stuNo").removeClass();
-            if (studentNo!=""){
-                $.ajax({
-                    url:"/stu/getStudentByNo/"+studentNo,
-                    type:"get",
-                    success:function (data) {
-                        $("#stuNo").html("温馨提示："+data.msg)
-                        $("#stuNo").addClass("blue")
-                    }
-                })
-            } else {
-                $("#stuNo").html("温馨提示：学号不能为空")
-                $("#stuNo").addClass("red")
-            }
+           var studentNo=$("#studentNo").val();
+           $("#stuNo").removeClass();
+           if (studentNo!=""){
+               $.ajax({
+                   url:"/stu/getStudentByNo/"+studentNo,
+                   type:"get",
+                   success:function (data) {
+                       $("#stuNo").html("温馨提示："+data.msg)
+                       $("#stuNo").addClass("blue")
+                   }
+               })
+           } else {
+               $("#stuNo").html("温馨提示：学号不能为空")
+               $("#stuNo").addClass("red")
+           }
        })
    })
 </script>

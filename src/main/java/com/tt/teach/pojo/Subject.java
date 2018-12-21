@@ -11,6 +11,7 @@ public class Subject implements Serializable {
     private String subjectName;
     private Integer classHour;
     private Integer gradeID;
+    private String gradeName;
 
     public Integer getSubjectNo() {
         return subjectNo;
@@ -42,6 +43,14 @@ public class Subject implements Serializable {
 
     public void setGradeID(Integer gradeID) {
         this.gradeID = gradeID;
+    }
+
+    public String getGradeName() {
+        return gradeName;
+    }
+
+    public void setGradeName(String gradeName) {
+        this.gradeName = gradeName;
     }
 
     public Subject(Integer subjectNo, String subjectName, Integer classHour, Integer gradeID) {

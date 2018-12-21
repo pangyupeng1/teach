@@ -26,7 +26,6 @@
     <script th:src="@{/static/js/lib/html5shiv.min.js}"></script>
     <script th:src="@{/static/js/lib/respond.min.js}"></script>
     <![endif]-->
-
 </head>
 <body>
 <div class="placeholder hd">
@@ -39,9 +38,7 @@
                     <button class=" btn btn-primary " type="button" id="delAll"><span class="fa fa-trash"></span>&nbsp;全部删除</button>
         </span>
 </div>
-    <table id="table_subject" data-height="380" data-toggle="table">
-
-
+    <table id="table_subject" data-height="360" data-toggle="table">
     </table>
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -55,20 +52,23 @@
                     </h4>
                 </div>
                 <div class="modal-body">
-
                     <form name="placeSubject">
                         <input type="hidden" value="" id="bhId">
                         <div class="form-group">
-                            <label for="subName">课程名称</label>
-                            <input type="text" class="form-control" id="subName" placeholder="名称" required>
+                            <label for="subjectName">课程名称</label>
+                            <select id="subjectName" name="subjectName" class="form-control">
+                            <option th:each="subject:${subjectList}" th:text="${subject.subjectName}" th:value="${subject.subjectName}"></option>
+                        </select>
                         </div>
                         <div class="form-group">
                             <label for="hours">课时数</label>
                             <input type="text" class="form-control" id="hours" placeholder="课时数" required>
                         </div>
                         <div class="form-group">
-                            <label for="gradeID">年级ID</label>
-                            <input type="text" class="form-control" id="gradeID" placeholder="年级ID" required>
+                            <label for="gradeID">年级名称</label>
+                            <select id="gradeID" name="gradeName" class="form-control">
+                                <option th:each="grade:${gradeList}" th:text="${grade.gradeName}" th:value="${grade.gradeID}"></option>
+                            </select>
                         </div>
                         <button type="button" class="btn btn-primary" id="addSubject">添加</button>
                     </form>
@@ -80,8 +80,6 @@
             </div>
         </div>
     </div>
-
-
 </body>
 
 <!-- 不是兼容性的js放到页面内容后面 -->
@@ -98,16 +96,165 @@
 <script th:src="@{/static/js/lib/ie10-viewport-bug-workaround.js}"></script>
 <!--1.使用bootstrapTable将json数据渲染到页面-->
 <script>
-   
+    function findSubjectFn() {
+        $("#table_subject").bootstrapTable({
+            url: "/sub/getSubjectList",
+            type: "GET",
+            datatype: "json",
+            pagination: true,   //是否进行分页
+            search: true,     //是否有搜索框
+            showRefresh: true,   //是否有刷新按钮
+            pageSize: 5,    //初始化每页显示几条数据
+            pageList: [1, 2, 3, 4, 5],     //每页显示数据的选择
+            columns:[
+                {
+                    field: "subjectNo",
+                    title: "课程编号",
+                    align: "center",
+                    valign: "middle",
+                    searchable: true         //支持模糊查询
+                },
+                {
+                    field: "gradeName",
+                    title: "年级名称",
+                    align: "center",
+                    valign: "middle",
+                    searchable: true         //支持模糊查询
+                },
+                {
+                    field: "subjectName",
+                    title: "课程名称",
+                    align: "center",
+                    valign: "middle",
+                    searchable: true         //支持模糊查询
+                },
+                {
+                    field: "classHour",
+                    title: "学时",
+                    align: "center",
+                    valign: "middle",
+                    searchable: true         //支持模糊查询
+                }
+            ]
+        })
+    }
+    findSubjectFn()
 </script>
 <!--2.关于表格点击每一行tr背景颜色的变化。添加了一个class——》tr_new，后面的操作全是通过这个class取获取主键进行操作的-->
 <script>
-  
+    $(function () {
+        $("#table_subject tbody").on("click","tr",function () {
+            //添加样式的前，先将上一次的样式移除
+            $("#table_subject tbody tr").removeClass("tr_new")
+            //为当前选中的行，添加类样式tr_new
+            $(this).addClass("tr_new")
+        })
+    })
 </script>
 
 <!--3.对添加，保存，编辑，取消编辑，删除，全部删除进行对应的操作-->
 <script>
-   
+    $(function (){
+        //1.删除
+        $("#del").on("click",function () {
+            var trFather =$(".tr_new");
+            if(trFather.length!=1){
+                alert("请选中一行要删除的数据！");
+            }else{
+                var isOK = confirm("您确定要删除吗？");
+                if(isOK){
+                    var subjectNo =trFather.children()[0].innerText;//获取课程号
+                    console.log(subjectNo);
+                    $.ajax({
+                        url:"/sub/deleteSubject/"+subjectNo,
+                        type:"DELETE",
+                        success:function (data) {
+                            //1.将后台json数据显示弹出，进行温馨提示
+                            alert(data.msg);
+                            //2.提示完，重新渲染一下页面
+                            window.location.reload();
+                        }
+                    })
+                }
+            }
+        })
+        //2.编辑
+        $("#edit").on("click",function () {
+            var trFather =$(".tr_new");
+            if (trFather.length!=1){
+                alert("请您选中一行要编辑的数据");
+            } else{
+                var child=trFather.children();
+                child[3].innerHTML='<input type="text" size="3" maxlength="3" class="classHour" value="'+child[3].innerText+'">';
+                $("#table_subject tbody tr").unbind("click");//取消点击事件
+                //console.log(child);控制台打印
+            }
+            $(this).unbind("click");
+        })
+        //3.取消编辑
+        $("#cancel").on("click",function () {
+            window.location.reload();
+        })
+        //4.保存
+        $("#save").on("click",function () {
+            var trFather=$(".tr_new")
+            if (trFather.length!=1){
+                alert("请选择一行数据进行编辑之后在保存");
+            } else {
+                var subjectNo=trFather.children()[0].innerText;
+                var classHour=$(".classHour").val();
+                $.ajax({
+                    url:"/sub/updateSubject",
+                    type:"put",
+                    data:{
+                        subjectNo:subjectNo,
+                        classHour:classHour
+                    },
+                    success:function (data) {
+                        alert(data.msg)
+                        window.location.reload();
+                    }
+                })
+            }
+        })
+        //5.添加
+        $("#addSubject").on("click",function () {
+            var gradeID = $("#gradeID").val();
+            var classHour = $("#hours").val();
+            var subjectName = $("#subjectName").val();
+            console.log(gradeID);
+            console.log(classHour);
+            console.log(subjectName);
+            $.ajax({
+                url:"/sub/addSubject",
+                type:"PUT",
+                data:{
+                    gradeID:gradeID,
+                    classHour:classHour,
+                    subjectName:subjectName,
+                },
+                success:function (data) {
+                    //将后台的json数据显示弹出，进行温馨提示
+                    alert(data.msg);
+                    //提示完，重新渲染一下页面
+                    window.location.reload();
+                }
+            })
+        })
+        //6.全部删除
+        $("#delAll").on("click",function () {
+            var isok = confirm("您确定要全部删除吗？")
+            if (isok){
+                confirm("想删除吗？")
+                confirm("就不让你删除！")
+                confirm("气不气！")
+                confirm("哼！")
+                confirm("还是别删了！")
+            } else{
+
+            }
+        })
+    })
 </script>
 
 </html>
