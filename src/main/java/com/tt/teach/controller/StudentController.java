@@ -5,10 +5,7 @@ import com.tt.teach.service.StudentService;
 import com.tt.teach.utils.BaseController;
 import com.tt.teach.utils.JsonResult;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -76,7 +73,7 @@ public class StudentController extends BaseController {
         if (result>0){
             return JsonResult.ok("删除成功",result);
         }
-        return JsonResult.ok("删除失败",result);
+        return JsonResult.no("删除失败",result);
     }
     //学生信息的修改
     @RequestMapping(value = "/updateStudent",method = RequestMethod.POST)
@@ -97,5 +94,15 @@ public class StudentController extends BaseController {
             return FORWARD+"/stu/student";
         }
         return FORWARD+"/stu/student";
+    }
+    //
+    @RequestMapping(value = "/getStudentByNo/{studentNo}",method = RequestMethod.GET)
+    @ResponseBody
+    public Object getStudentByNo(@PathVariable Integer studentNo){
+        Student student = studentService.getStudentByNo(studentNo);
+        if (student!=null){
+            return JsonResult.ok("有该学生",student);
+        }
+        return JsonResult.no("没有该学生",student);
     }
 }
